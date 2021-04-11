@@ -1,46 +1,94 @@
-vagas_rotativo = []
+# Meus Diretorios
+from cliente_rotativo import rotativo
+
+from time import sleep
 
 
-def cadastro_rotativo(placa, modelo, cor):
-    """
-    Tem como objetico adquiri os dados do veiculo
+def menu():
+    print('=' * 40)
+    print('-' * 15 + ' Rotativo ' + '-' * 15)
+    print('-' * 15 + ' RS DevWeb ' + '-' * 14)
+    print('=' * 40 + '\n')
 
-    :param placa: Pede a placa do veiculo
-    :param modelo: pede o modelo do veiculo
-    :param cor: Pede a cor predominante do veiculo
-    :return: dados
-    """
-    dados = {'Placa': placa, 'Modelo': modelo, 'Cor': cor}
-    return dados
+    print('-' * 17 + ' Menu ' + '-' * 17)
 
+    print('Entre com a opção desejada: ')
+    print('-' * 40 + '\n')
 
-def dados_veic_rotat():
-    enter_placa = input('Informe a placa do veiculo: ')
-    enter_modelo = input('Informe o modelo do veiculo: ')
-    enter_cor = input('Informe a cor do veiculo: ')
+    print('1 - Gerar Entrada:  ')
+    print('2 - Gerar Saida:  ')
+    print('3 - Total de Vagas : ')
+    print('4 - Total de Vagas Disponivel no Rotativo: ')
+    print('5 - Total de Vagas Disponivel no Vip: ')
+    print('6 - Mostra Veiculos no Rotativo: ')
+    print('7 - Mostra Veiculos no Vip: ')
+    print('8 - Cadastrar Vip: ')
+    print('9 - Remover Vip: ')
+    print('10 - Remover Rotativo: ')
+    print('11 - Buscar por Veiculo: ')
+    print('12 - Sair do Programa: ')
+    print('')
 
-    cadastro = cadastro_rotativo(enter_placa, enter_modelo, enter_cor)  # cadastro --> armazena a função
-    # cadastro_rotativo() recebendo como argumento
-    # os dados do veiculo informado pelo usuario
-    vagas_rotativo.append(cadastro)  # adiciona a lista vaga_rotativo o os dados informado pelo usuario
+    opcao = int(input('Opcão -> \n'))
 
+    if opcao == 1:
+        print('-' * 17 + ' Gerando Entrada ' + '-' * 17)
 
-while True:
-    opc = input('Digite (1) para entra ou (2) para sair: ')
-    if opc != '2':
-        placa_car = input('Placa: ')
-        dado = list(filter(lambda p: p['Placa'] == placa_car, vagas_rotativo))  # pecorre a lista vaga_rotativo em
-        # comparando o placa_car com dado
+        placa = input('Informe a placa do veiculo: \n')
+        rotativo.placa_c(placa)
+        menu()
 
-        if dado:
-            print(dado)
+    elif opcao == 2:
+        pass
+
+    elif opcao == 3:
+        pass
+
+    elif opcao == 4:
+        pass
+
+    elif opcao == 5:
+        pass
+
+    elif opcao == 6:
+        pass
+
+    elif opcao == 7:
+        pass
+
+    elif opcao == 8:
+        pass
+
+    elif opcao == 9:
+        pass
+
+    elif opcao == 10:
+        pass
+
+    elif opcao == 11:
+        pass
+
+    elif opcao == 12:
+        print('Deseja sair do programa? ')
+        sair = str(input('(s) sair - (n) não sair. '))
+
+        if sair == 's':
+            print('Encerrando o programa... ')
+            sleep(2)
+            exit(0)
+        elif sair == 'n':
+            sleep(1)
+            print('')
+            menu()
         else:
-            um = input('A placa informada não se encontra cadastrada: \npara cadastra-la pressione (1)')
-            if um:
-                dados_veic_rotat()
-            else:
-                break
-    else:
-        break
+            print('Opção Invalida. \n')
+            sleep(1)
+            menu()
 
-print(vagas_rotativo)
+    else:
+        print('Entrada Invalida. Tente novamente. ')
+        sleep(1)
+        menu()
+
+
+menu()
