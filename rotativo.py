@@ -3,7 +3,6 @@ from cliente_rotativo import rotativo
 
 from time import sleep
 
-
 def menu():
     print('=' * 40)
     print('-' * 15 + ' Rotativo ' + '-' * 15)
@@ -29,17 +28,23 @@ def menu():
     print('12 - Sair do Programa: ')
     print('')
 
-    opcao = int(input('Opcão -> \n'))
+    opcao = int(input('Opcão -> '))
 
     if opcao == 1:
         print('-' * 17 + ' Gerando Entrada ' + '-' * 17)
 
-        placa = input('Informe a placa do veiculo: \n')
-        rotativo.placa_c(placa)
+        placa_enter = input('Informe a placa do veiculo: \n')
+        rotativo.entrada(placa_enter)
+
         menu()
 
     elif opcao == 2:
-        pass
+        print('-' * 17 + ' Gerando Saida ' + '-' * 17)
+
+        placa_saida = input('Informe a placa do veiculo: \n')
+        rotativo.saida(placa_saida)
+
+        menu()
 
     elif opcao == 3:
         pass
@@ -51,7 +56,12 @@ def menu():
         pass
 
     elif opcao == 6:
-        pass
+        print('-' * 17 + ' Veiculos no rotativo ' + '-' * 17)
+
+        for i in rotativo.vagas_rotativo:
+            print(i)
+
+        menu()
 
     elif opcao == 7:
         pass

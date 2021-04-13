@@ -1,12 +1,15 @@
 from time import sleep
+from formatacao import format
 
 lista_cadastro = []
+vagas_rotativo = []
 
-vagas_rotativos = []
+dia_entrada = format.format_data()
+horario_entrada = format.format_hora()
 
 
-# Função para buscar e verificar a existencia de placa
-def placa_c(placa):
+# Função para buscar e verificar a existencia de placa e liberar entrada do usuario
+def entrada(placa):
     """
     Função que tem como objetivo atravez do parametro 'placa' verificar se a mesma existe
     liberando o usuario para entrar no rotativo.
@@ -54,7 +57,7 @@ def placa_c(placa):
                 print('Saindo do cadastro... \n')
                 sleep(1)
 
-    else:  # Verificação falida somente para o primeiro cadastro -- Refatorar
+    else:  # Verificação valida somente para o primeiro cadastro -- Refatorar(logica se repete)
 
         print(f'A placa {placa} não esta cadastrada. Deseja cadastra? ')
         cadastra = input('(s) Sim - (n) Não: ')
@@ -72,25 +75,26 @@ def placa_c(placa):
             sleep(1)
 
 
-def dados(placa, modelo, cor):
+def dados(placa, modelo, cor, dia=dia_entrada, hora=horario_entrada):
     """
     Cria um dicionario de dados de cliente
 
+    :param hora:
+    :param dia:
     :param placa: Pede a placa do veiculo
     :param modelo: Pede o modelo do veiculo
     :param cor: Pede a cor do veiculo
     """
-    dados_user = {'Placa': placa, 'Modelo': modelo, 'Cor': cor}
-    sleep(2)
+    dados_user = {'Placa': placa, 'Modelo': modelo, 'Cor': cor, 'Data': dia, 'Hora': hora}
+    sleep(1)
     print('Usuario cadastrado com sucesso!')
 
     entrada_liberada()
     lista_cadastro.append(dados_user)
+    vagas_rotativo.append(dados_user)
 
-    for i in lista_cadastro:
-        sleep(1)
-        print(i)
-        print('')
+    # print(f'Lista de usuario {lista_cadastro}')
+    # print(f'Lista da vagas de rotativo {vagas_rotativo}')
 
 
 def entrada_liberada():
@@ -105,5 +109,29 @@ def entrada_liberada():
     for i in range(3):
         print(i)
         sleep(1)
-    sleep(3)
+    sleep(1)
     print('')
+
+
+# Função para buscar e verificar a existencia de placa, se elas se encontra n rotativo liberar saida do usuario
+def saida(placa):
+
+    if len(vagas_rotativo) > 0:
+
+        for placa_user in vagas_rotativo:
+            if placa_user['Placa'] == placa:
+
+                pagamento()
+
+                # vagas_rotativo.remove(placa_user)
+                sleep(1)
+
+    else:
+        sleep(1)
+        print('Não existe veiculos no rotativo. ')
+        sleep(1)
+        print('')
+
+
+def pagamento():
+    pass
