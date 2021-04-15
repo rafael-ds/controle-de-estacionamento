@@ -1,16 +1,17 @@
+import datetime as dt
+
 
 def format_data():
-    import datetime
-    data = datetime.datetime.today()
+    data = dt.datetime.now()
     data_br = data.strftime('%d/%m/%Y')
 
     return data_br
 
 
 def format_hora():
-    from datetime import datetime
-    horario = datetime.now()
+    horario = dt.datetime.now()
+    hora = horario.strftime('%H:%M:%S')
 
-    return f'{horario.hour}:{horario.minute}:{horario.second}'
+    return hora
 
 
