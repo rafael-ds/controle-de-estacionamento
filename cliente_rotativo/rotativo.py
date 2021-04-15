@@ -1,8 +1,9 @@
 from time import sleep
+import datetime as dt
 from formatacao import format
 
-lista_cadastro = []
-vagas_rotativo = []
+lista_cadastro = [{'Placa': '123', 'Modelo': 'Fd', 'Cor': 'Rew', 'Data': '14/04/2021', 'Hora': '17:34:44'}]
+vagas_rotativo = [{'Placa': '123', 'Modelo': 'Fd', 'Cor': 'Rew', 'Data': '14/04/2021', 'Hora': '17:34:44'}]
 
 dia_entrada = format.format_data()
 horario_entrada = format.format_hora()
@@ -89,7 +90,7 @@ def dados(placa, modelo, cor, dia=dia_entrada, hora=horario_entrada):
     sleep(1)
     print('Usuario cadastrado com sucesso!')
 
-    entrada_liberada()
+    # entrada_liberada()
     lista_cadastro.append(dados_user)
     vagas_rotativo.append(dados_user)
 
@@ -121,8 +122,7 @@ def saida(placa):
         for placa_user in vagas_rotativo:
             if placa_user['Placa'] == placa:
 
-                pagamento()
-
+                pagamento(placa_user)
                 # vagas_rotativo.remove(placa_user)
                 sleep(1)
 
@@ -133,5 +133,15 @@ def saida(placa):
         print('')
 
 
-def pagamento():
-    pass
+def pagamento(placa_usuario):
+
+    hora_entrada = placa_usuario.get('Hora')
+    h_convertida = dt.datetime.strptime(hora_entrada, '%H:%M:%S')
+
+    hora_saida = dt.datetime.now()
+
+    subtracao = hora_saida - h_convertida
+
+    print(subtracao)
+    valor_por_hora = 7
+
