@@ -3,10 +3,7 @@ import datetime as dt
 from formatacao import format
 
 lista_cadastro = [{'Placa': '123', 'Modelo': 'Fd', 'Cor': 'Rew', 'Data': '14/04/2021', 'Hora': '17:34:44'}]
-vagas_rotativo = [{'Placa': '123', 'Modelo': 'Fd', 'Cor': 'Rew', 'Data': '14/04/2021', 'Hora': '17:34:44'}]
-
-dia_entrada = format.format_data()
-horario_entrada = format.format_hora()
+vagas_rotativo = [{'Placa': '123', 'Modelo': 'Fd', 'Cor': 'Rew', 'Data': '14/04/2021', 'Hora': '13:34:44'}]
 
 
 # Função para buscar e verificar a existencia de placa e liberar entrada do usuario
@@ -76,7 +73,7 @@ def entrada(placa):
             sleep(1)
 
 
-def dados(placa, modelo, cor, dia=dia_entrada, hora=horario_entrada):
+def dados(placa, modelo, cor, dia=format.format_data(), hora=format.format_hora()):
     """
     Cria um dicionario de dados de cliente
 
@@ -122,9 +119,18 @@ def saida(placa):
         for placa_user in vagas_rotativo:
             if placa_user['Placa'] == placa:
 
+                modelo = placa_user.get('Modelo')
+                cor = placa_user.get('Cor')
+                print(f'-------------Descrição do veiculo---------------\nModelo: {modelo}\nCor: {cor}')
                 pagamento(placa_user)
-                # vagas_rotativo.remove(placa_user)
-                sleep(1)
+                pg_efetuado = input('Liberar saida? (s) - (n): ')
+
+                if pg_efetuado == 's':
+                    vagas_rotativo.remove(placa_user)
+                    sleep(1)
+                else:
+                    print('Entrada Invalida! ')
+                    sleep(1)
 
     else:
         sleep(1)
@@ -135,13 +141,29 @@ def saida(placa):
 
 def pagamento(placa_usuario):
 
-    hora_entrada = placa_usuario.get('Hora')
-    h_convertida = dt.datetime.strptime(hora_entrada, '%H:%M:%S')
+    valor_rotativo = float(7.0)
+
+    dia_entrada = placa_usuario.get('Data')
+    hora_entrada = placa_usuario.get('Hora')  # Busca a hora de entrada do usuario
+    h_convertida = dt.datetime.strptime(hora_entrada, '%H:%M:%S')  # converte a hora de STR para datatime
+    hora_ent = h_convertida.hour, h_convertida.minute
 
     hora_saida = dt.datetime.now()
+    hora_sd = hora_saida.hour, hora_saida.minute
 
-    subtracao = hora_saida - h_convertida
+    sub_hora = hora_sd[0] - hora_ent[0]
 
-    print(subtracao)
-    valor_por_hora = 7
+    if sub_hora <= 1:
+        print(f'Hora da entrada {hora_entrada}')
+        print(f'Valor a ser pago é R$ {valor_rotativo}')
+        sleep(1)
+    else:
+        excedente = (sub_hora - 1) / .5
+
+        pg = (excedente * 3) + valor_rotativo
+        print(f'Hora da Entrada: {dia_entrada} - {hora_entrada}')
+        print(f'Hora da Saida: {format.format_data()} - {format.format_hora()}')
+        print(f'Valor a ser pago R$ {pg}')
+        sleep(1)
+
 
