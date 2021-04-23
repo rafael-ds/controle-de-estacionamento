@@ -33,8 +33,8 @@ def menu():
     if opcao == 1:
         print('-' * 17 + ' Gerando Entrada ' + '-' * 17)
 
-        placa_enter = input('Informe a placa do veiculo: \n')
-        rotativo.entrada(placa_enter)
+        placa_user = input('Informe a placa do veiculo: \n')
+        rotativo.entrada(placa_user)
 
         menu()
 
