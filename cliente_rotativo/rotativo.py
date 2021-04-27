@@ -1,76 +1,13 @@
+import csv
 from time import sleep
 import datetime as dt
+
+#  Mihas
 from formatacao import format
+from bd import bd_rotativo as bd
 
-lista_cadastro = [{'Placa': '123', 'Modelo': 'Fd', 'Cor': 'Rew', 'Data': '14/04/2021', 'Hora': '17:34:44'}]
-vagas_rotativo = [{'Placa': '123', 'Modelo': 'Fd', 'Cor': 'Rew', 'Data': '14/04/2021', 'Hora': '13:34:44'}]
-
-
-# Função para buscar e verificar a existencia de placa e liberar entrada do usuario
-def entrada(placa):
-    """
-    Função que tem como objetivo atravez do parametro 'placa' verificar se a mesma existe
-    liberando o usuario para entrar no rotativo.
-
-    :param placa: Verifica se a placa digitada existe, caso exista libera a entrada, caso contrario
-           cria um cadastro do novo usuario
-
-
-    """
-
-    if len(lista_cadastro) > 0:
-
-        usuario = list(filter(lambda u: u['Placa'] == placa, lista_cadastro))  # faz uma busca na lista atravez da chave
-        #  'Placa' e compara com input digitado pelo usuario em rotativo.py atraves do parametro placa da função
-
-        if usuario:
-            print('Usuario cadastrado: ')
-
-            for i in usuario:
-                print(i)
-            print('-' * 40)
-
-            confirmacao = int(input('Confirme os dados: (1)-OK -- (2)-Cancelar. '))
-            if confirmacao == 1:
-                entrada_liberada()
-
-            elif confirmacao == 2:
-                sleep(1)
-
-            else:  # Usar Try Exection (ValueError)
-                'Entrada Invalida! '
-
-        else:  # Refatorar
-            print(f'A placa {placa} não esta cadastrada. Deseja cadastra? ')
-            cadastra = input('(s) Sim - (n) Não: ')
-            print('-' * 40)
-
-            if cadastra == 's':
-                enter_modelo = input('Informe o modelo do veiculo: ').title()
-                enter_cor = input('Informe a cor do veiculo: ').title()
-
-                dados(placa, enter_modelo, enter_cor)
-
-            elif cadastra == 'n':
-                print('Saindo do cadastro... \n')
-                sleep(1)
-
-    else:  # Verificação valida somente para o primeiro cadastro -- Refatorar(logica se repete)
-
-        print(f'A placa {placa} não esta cadastrada. Deseja cadastra? ')
-        cadastra = input('(s) Sim - (n) Não: ')
-        print('-' * 40)
-        sleep(1)
-
-        if cadastra == 's':
-            enter_modelo = input('Informe o modelo do veiculo: ').title()
-            enter_cor = input('Informe a cor do veiculo: ').title()
-
-            dados(placa, enter_modelo, enter_cor)
-
-        elif cadastra == 'n':
-            print('Saindo do cadastro... \n')
-            sleep(1)
+lista_cadastro = []
+vagas_rotativo = []
 
 
 def dados(placa, modelo, cor, dia=format.format_data(), hora=format.format_hora()):
@@ -87,28 +24,87 @@ def dados(placa, modelo, cor, dia=format.format_data(), hora=format.format_hora(
     sleep(1)
     print('Usuario cadastrado com sucesso!')
 
-    # entrada_liberada()
-    lista_cadastro.append(dados_user)
+    bd.banco(dados_user)
     vagas_rotativo.append(dados_user)
 
-    # print(f'Lista de usuario {lista_cadastro}')
-    # print(f'Lista da vagas de rotativo {vagas_rotativo}')
+
+def cadastro_veic(placa):
+    print(f'A placa {placa} não esta cadastrada. Deseja cadastra? ')
+    cadastra = input('(s) Sim - (n) Não: ')
+    print('-' * 40)
+    sleep(1)
+
+    if cadastra == 's':
+        enter_modelo = input('Informe o modelo do veiculo: ').title()
+        enter_cor = input('Informe a cor do veiculo: ').title()
+
+        dados(placa, enter_modelo, enter_cor)
+
+    elif cadastra == 'n':
+        print('Saindo do cadastro... \n')
+        sleep(1)
 
 
-def entrada_liberada():
+def entrada_saida_liberada():
     """
     Uma pequena função estetica que mostra a liberação do veiculo
     apos se cadastrado na lista_cadasto ou confirmado na mesma.
     :return:
     """
-    print('Veiculo liberado para entrada. ')
-    print('Ergendo a cancela... ')
 
     for i in range(3):
         print(i)
         sleep(1)
     sleep(1)
     print('')
+
+
+# Função para buscar e verificar a existencia de placa e liberar entrada do usuario
+def entrada(placa):
+    """
+    Função que tem como objetivo atravez do parametro 'placa' verificar se a mesma existe
+    liberando o usuario para entrar no rotativo.
+
+    :param placa: Verifica se a placa digitada existe, caso exista libera a entrada, caso contrario
+           cria um cadastro do novo usuario
+
+
+    """
+
+    try:
+        with open('cliente_rotativo.csv', 'r', encoding='utf-8', newline='') as abrir:
+            ler = csv.DictReader(abrir)
+            usuario = list(filter(lambda user: user['Placa'] == placa, ler))
+
+            if usuario:
+                print('Usuario cadastrado: ')
+                print(vagas_rotativo)
+                for i in usuario:  # Mostra os dados do usuario
+                    user = i.get('Placa'), i.get('Modelo'), i.get('Cor')
+                    data = i.get('Data'), i.get('Hora')
+
+                    print(user)
+                    print(f'Ultimo acesso {data}')
+                print('-' * 40)
+
+                confirmacao = int(input('Confirme os dados: (1)-OK -- (2)-Cancelar. '))
+                if confirmacao == 1:
+                    print('-' * 10)
+                    print('Veiculo liberado para entrada. ')
+                    print('Ergendo a cancela... ')
+                    entrada_saida_liberada()
+                    vagas_rotativo.append(usuario)
+                    print(vagas_rotativo)
+                elif confirmacao == 2:
+                    sleep(1)
+
+                else:  # Usar Try Exection (ValueError)
+                    'Entrada Invalida! '
+            else:
+                cadastro_veic(placa)
+
+    except FileNotFoundError:
+        cadastro_veic(placa)
 
 
 # Função para buscar e verificar a existencia de placa, se elas se encontra n rotativo liberar saida do usuario
@@ -121,9 +117,18 @@ def saida(placa):
 
                 modelo = placa_user.get('Modelo')
                 cor = placa_user.get('Cor')
+
                 print(f'-------------Descrição do veiculo---------------\nModelo: {modelo}\nCor: {cor}')
+
                 pagamento(placa_user)
                 pg_efetuado = input('Liberar saida? (s) - (n): ')
+
+                print('-' * 50)
+                print('Veiculo liberado para Saida. ')
+                print('Ergendo a cancela... ')
+
+                entrada_saida_liberada()
+                sleep(1)
 
                 if pg_efetuado == 's':
                     vagas_rotativo.remove(placa_user)
@@ -145,13 +150,14 @@ def pagamento(placa_usuario):
 
     dia_entrada = placa_usuario.get('Data')
     hora_entrada = placa_usuario.get('Hora')  # Busca a hora de entrada do usuario
+
     h_convertida = dt.datetime.strptime(hora_entrada, '%H:%M:%S')  # converte a hora de STR para datatime
-    hora_ent = h_convertida.hour, h_convertida.minute
+    hora_ent = h_convertida.hour
 
     hora_saida = dt.datetime.now()
-    hora_sd = hora_saida.hour, hora_saida.minute
+    hora_sd = hora_saida.hour
 
-    sub_hora = hora_sd[0] - hora_ent[0]
+    sub_hora = hora_sd - hora_ent
 
     if sub_hora <= 1:
         print(f'Hora da entrada {hora_entrada}')
