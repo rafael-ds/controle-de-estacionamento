@@ -47,7 +47,7 @@ def menu():
         menu()
 
     elif opcao == 3:
-        pass
+        rotativo.cast_vagas_rotativo()
 
     elif opcao == 4:
         pass

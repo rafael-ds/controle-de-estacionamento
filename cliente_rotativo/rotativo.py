@@ -24,8 +24,8 @@ def dados(placa, modelo, cor, dia=format.format_data(), hora=format.format_hora(
     sleep(1)
     print('Usuario cadastrado com sucesso!')
 
-    bd.banco(dados_user)
-    vagas_rotativo.append(dados_user)
+    bd.bd_cadastro(dados_user)
+    bd.bd_vagas_rotativo(dados_user)
 
 
 def cadastro_veic(placa):
@@ -67,18 +67,16 @@ def entrada(placa):
 
     :param placa: Verifica se a placa digitada existe, caso exista libera a entrada, caso contrario
            cria um cadastro do novo usuario
-
-
     """
 
     try:
-        with open('cliente_rotativo.csv', 'r', encoding='utf-8', newline='') as abrir:
+        with open('bd_cadastro_cliente_rotativo.csv', 'r', encoding='utf-8', newline='') as abrir:
             ler = csv.DictReader(abrir)
             usuario = list(filter(lambda user: user['Placa'] == placa, ler))
 
             if usuario:
                 print('Usuario cadastrado: ')
-                print(vagas_rotativo)
+
                 for i in usuario:  # Mostra os dados do usuario
                     user = i.get('Placa'), i.get('Modelo'), i.get('Cor')
                     data = i.get('Data'), i.get('Hora')
@@ -93,8 +91,10 @@ def entrada(placa):
                     print('Veiculo liberado para entrada. ')
                     print('Ergendo a cancela... ')
                     entrada_saida_liberada()
-                    vagas_rotativo.append(usuario)
-                    print(vagas_rotativo)
+
+                    for i in usuario:
+                        bd.bd_vagas_rotativo(i)
+
                 elif confirmacao == 2:
                     sleep(1)
 
@@ -107,45 +107,63 @@ def entrada(placa):
         cadastro_veic(placa)
 
 
+def cast_vaga_rotivo():
+    """
+     Função que pega os elementos do .csv e joga para o lista vagas rotativos
+    """
+    try:
+        with open('bd_vagas_rotativos.csv', 'r', encoding='utf-8', newline='') as abrir:
+            ler = csv.DictReader(abrir)
+            for dados in ler:
+                vagas_rotativo.append(dados)
+
+    except FileNotFoundError:
+        return 'Ainda não existe nenhum veiculo no patio. '
+
+
+def atualizar_vr_csv():
+    """
+    Função que atualiza o arquivo .csv na hora da saida do veiculo
+    :return:
+    """
+    with open('bd_vagas_rotativos.csv', 'w', encoding='utf-8', newline='') as salvar:
+        cabecalho = ['Placa', 'Modelo', 'Cor', 'Data', 'Hora']
+        escrever = csv.DictWriter(salvar, fieldnames=cabecalho)
+        if salvar.tell() == 0:
+            escrever.writeheader()
+
+        for veiculos in vagas_rotativo:
+            escrever.writerow(
+                {'Placa': veiculos['Placa'], 'Modelo': veiculos['Modelo'],
+                 'Cor': veiculos['Cor'], 'Data': veiculos['Data'], 'Hora': veiculos['Hora']})
+    del vagas_rotativo[:]
+
+
 # Função para buscar e verificar a existencia de placa, se elas se encontra n rotativo liberar saida do usuario
 def saida(placa):
+    cast_vaga_rotivo()
 
-    if len(vagas_rotativo) > 0:
+    for veiculo in vagas_rotativo:
+        if veiculo['Placa'] == placa:
+            modelo = veiculo.get('Modelo')
+            cor = veiculo.get('Cor')
 
-        for placa_user in vagas_rotativo:
-            if placa_user['Placa'] == placa:
+            print(f'-------------Descrição do veiculo---------------'
+                  f'\nPlaca: {placa}\nModelo: {modelo}\nCor: {cor}')
+            print('-' * 50)
+            pagamento(veiculo)
+            liberar_saida = input('Liberar saida? (s) - (n): ')
 
-                modelo = placa_user.get('Modelo')
-                cor = placa_user.get('Cor')
+            if liberar_saida == 's':
+                vagas_rotativo.remove(veiculo)
 
-                print(f'-------------Descrição do veiculo---------------\nModelo: {modelo}\nCor: {cor}')
-
-                pagamento(placa_user)
-                pg_efetuado = input('Liberar saida? (s) - (n): ')
-
-                print('-' * 50)
-                print('Veiculo liberado para Saida. ')
-                print('Ergendo a cancela... ')
-
-                entrada_saida_liberada()
-                sleep(1)
-
-                if pg_efetuado == 's':
-                    vagas_rotativo.remove(placa_user)
-                    sleep(1)
-                else:
-                    print('Entrada Invalida! ')
-                    sleep(1)
-
-    else:
-        sleep(1)
-        print('Não existe veiculos no rotativo. ')
-        sleep(1)
-        print('')
+    atualizar_vr_csv()
+    print('Veiculo liberado para saida. ')
+    print('Ergendo a cancela... ')
+    entrada_saida_liberada()
 
 
 def pagamento(placa_usuario):
-
     valor_rotativo = float(7.0)
 
     dia_entrada = placa_usuario.get('Data')
@@ -171,5 +189,3 @@ def pagamento(placa_usuario):
         print(f'Hora da Saida: {format.format_data()} - {format.format_hora()}')
         print(f'Valor a ser pago R$ {pg}')
         sleep(1)
-
-
