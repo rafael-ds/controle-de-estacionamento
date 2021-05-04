@@ -1,4 +1,5 @@
 # Meus Diretorios
+import cliente_rotativo.rotativo
 from cliente_rotativo import rotativo
 
 from time import sleep
@@ -16,20 +17,20 @@ def menu():
 
     print('1 - Gerar Entrada:  ')
     print('2 - Gerar Saida:  ')
-    print('3 - Total de Vagas : ')
-    print('4 - Total de Vagas Disponivel no Rotativo: ')
-    print('5 - Total de Vagas Disponivel no Vip: ')
-    print('6 - Mostra Veiculos no Rotativo: ')
-    print('7 - Mostra Veiculos no Vip: ')
-    print('8 - Cadastrar Vip: ')
-    print('9 - Remover Vip: ')
-    print('10 - Remover Rotativo: ')
-    print('11 - Buscar por Veiculo: ')
-    print('12 - Sair do Programa: ')
+    print('3 - Total de Vagas Rotativo : ')
+    print('4 - Vagas Disponivel no Rotativo: ')
+    print('5 - Mostra Veiculos no Rotativo: ')
+    print('6 - Buscar por Veiculo: ')
+    print('7 - Cadastrar Vip:')
+    print('8 - Mostra Veiculos Vip: ')
+    print('9 - Vagas Disponivel no Vip: ')
+    print('10 - Remover Vip: ')
+    print('11 - Sair do Programa: ')
     print('')
 
     opcao = int(input('Opcão -> '))
 
+    # Entrada
     if opcao == 1:
         print('-' * 17 + ' Gerando Entrada ' + '-' * 17)
 
@@ -38,6 +39,7 @@ def menu():
 
         menu()
 
+    # Saida
     elif opcao == 2:
         print('-' * 17 + ' Gerando Saida ' + '-' * 17)
 
@@ -46,22 +48,24 @@ def menu():
 
         menu()
 
+    # Total de Vagas Rotativo
+    #  Mostrar no menu configurações
     elif opcao == 3:
-        rotativo.cast_vagas_rotativo()
-
-    elif opcao == 4:
         pass
+
+    # Vagas Disponivel no Rotativo
+    elif opcao == 4:
+        print('-' * 17 + ' Vagas Disponivel no Rotativo ' + '-' * 17)
+        print(cliente_rotativo.rotativo.qnt_vagas_disponivel())
+        print('')
+        sleep(1)
+        menu()
 
     elif opcao == 5:
         pass
 
     elif opcao == 6:
-        print('-' * 17 + ' Veiculos no rotativo ' + '-' * 17)
-
-        for i in rotativo.vagas_rotativo:
-            print(i)
-
-        menu()
+        pass
 
     elif opcao == 7:
         pass
@@ -76,9 +80,6 @@ def menu():
         pass
 
     elif opcao == 11:
-        pass
-
-    elif opcao == 12:
         print('Deseja sair do programa? ')
         sair = str(input('(s) sair - (n) não sair. '))
 

@@ -3,11 +3,14 @@ from time import sleep
 import datetime as dt
 
 #  Mihas
+from typing import List, Any
+
 from formatacao import format
 from bd import bd_rotativo as bd
 
-lista_cadastro = []
+lista_cadastro: List[Any] = []
 vagas_rotativo = []
+total_vaga_rotativo = 100  # cria uma logica de configurações -- Refatorar
 
 
 def dados(placa, modelo, cor, dia=format.format_data(), hora=format.format_hora()):
@@ -23,6 +26,7 @@ def dados(placa, modelo, cor, dia=format.format_data(), hora=format.format_hora(
     dados_user = {'Placa': placa, 'Modelo': modelo, 'Cor': cor, 'Data': dia, 'Hora': hora}
     sleep(1)
     print('Usuario cadastrado com sucesso!')
+    sleep(1)
 
     bd.bd_cadastro(dados_user)
     bd.bd_vagas_rotativo(dados_user)
@@ -69,42 +73,53 @@ def entrada(placa):
            cria um cadastro do novo usuario
     """
 
-    try:
-        with open('bd_cadastro_cliente_rotativo.csv', 'r', encoding='utf-8', newline='') as abrir:
-            ler = csv.DictReader(abrir)
-            usuario = list(filter(lambda user: user['Placa'] == placa, ler))
+    #  Inicio da logica para verificar se o limite de vagas não foi excedido
+    with open('bd_vagas_rotativos.csv', 'r') as abrir:
+        ler = list(csv.DictReader(abrir))
+        if len(ler) > total_vaga_rotativo:
+            print('Não existe vagas disponiveis no rotativo. \n')
+            sleep(1)
+    #  -----------------------------------------------------------------------
+        else:
+            try:
+                with open('bd_cadastro_cliente_rotativo.csv', 'r', encoding='utf-8', newline='') as abrir:
+                    ler = csv.DictReader(abrir)
+                    usuario = list(filter(lambda user: user['Placa'] == placa, ler))
 
-            if usuario:
-                print('Usuario cadastrado: ')
+                    if usuario:
+                        print('Usuario cadastrado: ')
 
-                for i in usuario:  # Mostra os dados do usuario
-                    user = i.get('Placa'), i.get('Modelo'), i.get('Cor')
-                    data = i.get('Data'), i.get('Hora')
+                        #  Mostra os dados do usuario
+                        for i in usuario:
+                            user = i.get('Placa'), i.get('Modelo'), i.get('Cor')
+                            data = i.get('Data'), i.get('Hora')
 
-                    print(user)
-                    print(f'Ultimo acesso {data}')
-                print('-' * 40)
+                            print(user)
+                            print(f'Ultimo acesso {data}')
+                        print('-' * 40)
+                        # -------------- Fim ------------------
 
-                confirmacao = int(input('Confirme os dados: (1)-OK -- (2)-Cancelar. '))
-                if confirmacao == 1:
-                    print('-' * 10)
-                    print('Veiculo liberado para entrada. ')
-                    print('Ergendo a cancela... ')
-                    entrada_saida_liberada()
+                        confirmacao = int(input('Confirme os dados: (1)-OK -- (2)-Cancelar. '))
+                        if confirmacao == 1:
+                            print('-' * 10)
+                            print('Veiculo liberado para entrada. ')
+                            print('Ergendo a cancela... ')
+                            entrada_saida_liberada()
 
-                    for i in usuario:
-                        bd.bd_vagas_rotativo(i)
+                            for i in usuario:
+                                bd.bd_vagas_rotativo(i)
+                                atualizar_cc_csv()
 
-                elif confirmacao == 2:
-                    sleep(1)
+                        elif confirmacao == 2:
+                            sleep(1)
 
-                else:  # Usar Try Exection (ValueError)
-                    'Entrada Invalida! '
-            else:
+                        else:  # Usar Try Exection (ValueError)
+                            'Entrada Invalida! '
+                    else:
+                        cadastro_veic(placa)
+
+            except FileNotFoundError:
                 cadastro_veic(placa)
-
-    except FileNotFoundError:
-        cadastro_veic(placa)
 
 
 def cast_vaga_rotivo():
@@ -121,15 +136,25 @@ def cast_vaga_rotivo():
         return 'Ainda não existe nenhum veiculo no patio. '
 
 
+def cast_cadastro_cliente():
+    try:
+        with open('bd_cadastro_rotativo.csv', 'r', encoding='utf-8', newline='') as abrir:
+            ler = csv.DictReader(abrir)
+            for dados in ler:
+                lista_cadastro.append(dados)
+
+    except FileNotFoundError:
+        return 'Ainda não existe nenhum veiculo Cadastrado. '
+
+
 def atualizar_vr_csv():
     """
-    Função que atualiza o arquivo .csv na hora da saida do veiculo
-    :return:
+    Função que atualiza o arquivo bd_vagas_rotativos.csv na hora da saida do veiculo
     """
-    with open('bd_vagas_rotativos.csv', 'w', encoding='utf-8', newline='') as salvar:
+    with open('bd_vagas_rotativos.csv', 'w', encoding='utf-8', newline='') as atualizar:
         cabecalho = ['Placa', 'Modelo', 'Cor', 'Data', 'Hora']
-        escrever = csv.DictWriter(salvar, fieldnames=cabecalho)
-        if salvar.tell() == 0:
+        escrever = csv.DictWriter(atualizar, fieldnames=cabecalho)
+        if atualizar.tell() == 0:
             escrever.writeheader()
 
         for veiculos in vagas_rotativo:
@@ -137,6 +162,20 @@ def atualizar_vr_csv():
                 {'Placa': veiculos['Placa'], 'Modelo': veiculos['Modelo'],
                  'Cor': veiculos['Cor'], 'Data': veiculos['Data'], 'Hora': veiculos['Hora']})
     del vagas_rotativo[:]
+
+
+def atualizar_cc_csv():
+    with open('bd_cadastro_rotativo.csv', 'w', encoding='utf-8', newline='') as atualizar:
+        cabecalho = ['Placa', 'Modelo', 'Cor', 'Data', 'Hora']
+        escrever = csv.DictWriter(atualizar, fieldnames=cabecalho)
+        if atualizar.tell() == 0:
+            escrever.writeheader()
+
+        for veiculos in lista_cadastro:
+            escrever.writerow(
+                {'Placa': veiculos['Placa'], 'Modelo': veiculos['Modelo'],
+                 'Cor': veiculos['Cor'], 'Data': veiculos[format.format_data()], 'Hora': veiculos[format.format_hora()]})
+    del lista_cadastro[:]
 
 
 # Função para buscar e verificar a existencia de placa, se elas se encontra n rotativo liberar saida do usuario
@@ -161,6 +200,14 @@ def saida(placa):
     print('Veiculo liberado para saida. ')
     print('Ergendo a cancela... ')
     entrada_saida_liberada()
+
+
+def qnt_vagas_disponivel():
+    with open('bd_vagas_rotativos.csv', 'r') as abrir:
+        ler = list(csv.DictReader(abrir))
+        l = total_vaga_rotativo
+        qnt = l - len(ler)
+    return f'Existem {qnt} vagas disponiveis no rotativo. '
 
 
 def pagamento(placa_usuario):
