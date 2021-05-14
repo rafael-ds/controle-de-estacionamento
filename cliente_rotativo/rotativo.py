@@ -2,9 +2,6 @@ import csv
 from time import sleep
 import datetime as dt
 
-#  Mihas
-from typing import List, Any
-
 from formatacao import format
 from bd import bd_rotativo as bd
 
@@ -120,10 +117,30 @@ def entrada(placa):
                                 atualizar_cc_csv(i)
                                 entrada_saida_liberada()  # Chamada da função estetica
 
-                                #  FOR  necessario para que haja o desempacoptamento da lista vagas_rotativo
-                                #  e assim poder atualizar com dicionario o arquivo "bd_vagas_rotativos"
-                                for i in usuario:
-                                    bd.bd_vagas_rotativo(i)
+                                #  ------Logica para atulização da data e hora caso o
+                                #  cliente volte a usar o rotativo ------
+                                with open('bd_cadastro_cliente_rotativo.csv', 'r', encoding='utf-8',
+                                          newline='') as abrir:
+                                    ler = csv.DictReader(abrir)
+                                    for i in ler:
+                                        vagas_rotativo.append(i)
+
+                                for veiculos in vagas_rotativo:
+                                    if veiculos['Placa'] == placa:
+                                        veiculos['Hora'] = format.format_hora()
+                                        veiculos['Data'] = format.format_data()
+
+                                        with open('bd_vagas_rotativos.csv', 'a', encoding='utf-8',
+                                                  newline='') as atualizar:
+                                            cabecalho = ['Placa', 'Modelo', 'Cor', 'Data', 'Hora']
+                                            escrever = csv.DictWriter(atualizar, fieldnames=cabecalho)
+                                            if atualizar.tell() == 0:
+                                                escrever.writeheader()
+
+                                            escrever.writerow(veiculos)
+                                        del vagas_rotativo[:]
+                                #  ------Fim  daLogica para atulização da data e hora caso o
+                                #  cliente volte a usar o rotativo ----
 
                             elif confirmacao == 2:
                                 sleep(1)
@@ -317,3 +334,17 @@ def pagamento(placa_usuario):
         print(f'Hora da Saida: {format.format_data()} - {format.format_hora()}')
         print(f'Valor a ser pago R$ {pg}')
         sleep(1)
+
+
+def lista_veic_rotativo():
+
+    with open('bd_vagas_rotativos.csv', 'r', newline='', encoding='utf-8') as abrir:
+        ler = list(csv.DictReader(abrir))
+
+        for i in ler:
+            usuario = i.get('Placa'), i.get('Modelo'), i.get('Cor')
+            data = i.get('Data'), i.get('Hora')
+
+            print(f'Usuario: {usuario}')
+            print(f'Entrada: {data}')
+            print('-' * 50 + '\n')

@@ -20,7 +20,7 @@ def menu():
     print('3 - Total de Vagas Rotativo : ')
     print('4 - Vagas Disponivel no Rotativo: ')
     print('5 - Mostra Veiculos no Rotativo: ')
-    print('6 - Buscar por Veiculo: ')
+    print('6 - Buscar por Veiculo no Rotativo: ')
     print('7 - Cadastrar Vip:')
     print('8 - Mostra Veiculos Vip: ')
     print('9 - Vagas Disponivel no Vip: ')
@@ -62,7 +62,10 @@ def menu():
         menu()
 
     elif opcao == 5:
-        pass
+        print('-' * 17 + ' Lista de veiculos no rotativo ' + '-' * 17 + '\n')
+        cliente_rotativo.rotativo.lista_veic_rotativo()
+        sleep(1)
+        menu()
 
     elif opcao == 6:
         pass
